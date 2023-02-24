@@ -1,91 +1,91 @@
-import Image from 'next/image'
-import { Inter } from '@next/font/google'
-import styles from './page.module.css'
+import { Inter } from '@next/font/google';
+import Herocard from './components/HeroCard';
+import Slide from './components/Slide';
+import TopChartCard from './components/TopChartCard';
+import SongCard from './components/SongCard';
+import Controller from './components/Controller';
+import Link from 'next/link';
 
-const inter = Inter({ subsets: ['latin'] })
+const inter = Inter({ subsets: ['latin'] });
 
-export default function Home() {
-  return (
-    <main className={styles.main}>
-      <div className={styles.description}>
-        <p>
-          Get started by editing&nbsp;
-          <code className={styles.code}>src/app/page.tsx</code>
-        </p>
-        <div>
-          <a
-            href="https://vercel.com?utm_source=create-next-app&utm_medium=appdir-template&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            By{' '}
-            <Image
-              src="/vercel.svg"
-              alt="Vercel Logo"
-              className={styles.vercelLogo}
-              width={100}
-              height={24}
-              priority
-            />
-          </a>
-        </div>
-      </div>
+const Home = () => {
+	const cards = [
+		1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19,
+	];
+	const responsiveTopChart = {
+		0: {
+			items: 1.1,
+		},
+		500: {
+			items: 2.1,
+		},
+		768: {
+			items: 3.1,
+			itemsFit: 'contain',
+		},
+		1024: {
+			items: 5.1,
+			itemsFit: 'contain',
+		},
+	};
 
-      <div className={styles.center}>
-        <Image
-          className={styles.logo}
-          src="/next.svg"
-          alt="Next.js Logo"
-          width={180}
-          height={37}
-          priority
-        />
-        <div className={styles.thirteen}>
-          <Image src="/thirteen.svg" alt="13" width={40} height={31} priority />
-        </div>
-      </div>
+	const responsiveNewRelease = {
+		0: {
+			items: 2.1,
+		},
+		500: {
+			items: 3.1,
+		},
+		768: {
+			items: 4.1,
+			itemsFit: 'contain',
+		},
+		1024: {
+			items: 6.1,
+			itemsFit: 'contain',
+		},
+		1640: {
+			items: 9.1,
+			itemsFit: 'contain',
+		},
+	};
 
-      <div className={styles.grid}>
-        <a
-          href="https://beta.nextjs.org/docs?utm_source=create-next-app&utm_medium=appdir-template&utm_campaign=create-next-app"
-          className={styles.card}
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <h2 className={inter.className}>
-            Docs <span>-&gt;</span>
-          </h2>
-          <p className={inter.className}>
-            Find in-depth information about Next.js features and API.
-          </p>
-        </a>
+	return (
+		<main className="min-height-screen pb-8 pt-20 text-red-500 flex flex-col">
+			<div className="flex flex-col gap-10">
+				<div className="flex flex-col gap-8 md:flex-row md:gap-2">
+					<Herocard />
+					<div className="hidden md:flex-col md:gap-4 md:flex md:flex-[1_1_32%]">
+						<h1 className="text-2xl font-bold">
+							<Link href="/chart">Top Charts</Link>
+						</h1>
+						<TopChartCard />
+						<TopChartCard />
+						<TopChartCard />
+					</div>
+				</div>
+				<div className="md:hidden">
+					<Slide
+						data={cards}
+						responsive={responsiveTopChart}
+						Component={<TopChartCard />}
+						title={'Top charts'}
+						link={'/chart'}
+					/>
+				</div>
+				<Slide
+					data={cards}
+					responsive={responsiveNewRelease}
+					Component={<SongCard />}
+					title={'New releases'}
+					link="releases"
+				/>
+			</div>
+			<div className="md:hidden">
+				<Controller />
+			</div>
+		</main>
+	);
+};
 
-        <a
-          href="https://vercel.com/templates?framework=next.js&utm_source=create-next-app&utm_medium=appdir-template&utm_campaign=create-next-app"
-          className={styles.card}
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <h2 className={inter.className}>
-            Templates <span>-&gt;</span>
-          </h2>
-          <p className={inter.className}>Explore the Next.js 13 playground.</p>
-        </a>
-
-        <a
-          href="https://vercel.com/new?utm_source=create-next-app&utm_medium=appdir-template&utm_campaign=create-next-app"
-          className={styles.card}
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <h2 className={inter.className}>
-            Deploy <span>-&gt;</span>
-          </h2>
-          <p className={inter.className}>
-            Instantly deploy your Next.js site to a shareable URL with Vercel.
-          </p>
-        </a>
-      </div>
-    </main>
-  )
-}
+export default Home;
