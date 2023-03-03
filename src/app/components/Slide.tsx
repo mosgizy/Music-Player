@@ -4,20 +4,19 @@ import AliceCarousel from 'react-alice-carousel';
 import 'react-alice-carousel/lib/alice-carousel.css';
 
 interface slide {
-	data?: any[];
 	responsive: {};
-	Component: JSX.Element;
+	Component: any[];
 	title: string;
 	link: string;
 }
 
-const Slide = ({ data, responsive, Component, title, link }: slide) => {
+const Slide = ({ responsive, Component, title, link }: slide) => {
 	const handleDragStart = (e: any) => e.preventDefault();
 
-	const items = data?.map((card) => {
+	const items = Component?.map((card) => {
 		return (
 			<div onDragStart={handleDragStart} key={card}>
-				{Component}
+				{card}
 			</div>
 		);
 	});
@@ -34,7 +33,7 @@ const Slide = ({ data, responsive, Component, title, link }: slide) => {
 					disableDotsControls={true}
 					keyboardNavigation={true}
 					responsive={responsive}
-					items={items}
+					items={Component}
 				/>
 			</div>
 		</section>

@@ -1,9 +1,13 @@
 import { configureStore } from '@reduxjs/toolkit'
 import sideBar from './slice/sideBar'
+import albumSlice from './slice/Album'
+import trackSlice  from './slice/track'
 
 export const store = configureStore({
     reducer: {
-      sidebar:sideBar
+      sidebar: sideBar,
+      albumSlice: albumSlice,
+      trackSlice:trackSlice
     },
     devTools:true,
 })
