@@ -13,11 +13,11 @@ import {
 	totalTrackTime,
 	handleTrackUpload,
 } from 'resources/helper/functions';
-import { setTrack } from 'store/slice/track';
-import { trackI } from 'resources/interface/trackInterface';
+import { setTrack, setPlaying } from 'store/slice/track';
 
 const Page = ({ params }: { params: { slug: string } }) => {
 	const { albums } = useAppSelector((state) => state.albumSlice);
+	const { trackId } = useAppSelector((state) => state.trackSlice);
 	const dispatch = useAppDispatch();
 
 	const path = params.slug.replaceAll('%20', ' ');
@@ -32,6 +32,9 @@ const Page = ({ params }: { params: { slug: string } }) => {
 
 	const handleTrackClick = (item: any) => {
 		dispatch(setTrack(handleTrackUpload(item, album)));
+		setTimeout(() => {
+			dispatch(setPlaying(true));
+		}, 10);
 	};
 
 	// console.log(album[0].artists[0].name);
@@ -82,7 +85,9 @@ const Page = ({ params }: { params: { slug: string } }) => {
 							<div
 								key={item.id}
 								onClick={() => handleTrackClick(item)}
-								className="flex flex-row justify-between md: px-4 py-3 backdrop-blur-sm bg-[rgba(51,55,59,0.37)] hover:bg-dark rounded-xl cursor-pointer "
+								className={`flex flex-row justify-between md: px-4 py-3 backdrop-blur-sm bg-[rgba(51,55,59,0.37)] hover:bg-dark rounded-xl cursor-pointer hover:shadow-lg hover:shadow-darkAlt ${
+									trackId === item.id && 'bg-dark shadow-lg shadow-darkAlt'
+								}`}
 							>
 								<div className="flex flex-row gap-3 md:hidden">
 									<div className="">

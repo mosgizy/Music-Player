@@ -13,31 +13,36 @@ import {
 } from '@fortawesome/free-solid-svg-icons';
 import Image from 'next/image';
 import { useAppSelector, useAppDispatch } from 'store/hook';
-import { useState, useEffect, memo } from 'react';
-import { handleTrackUpload } from 'resources/helper/functions';
-import { setTrackList, changeTrack } from 'store/slice/track';
+import { useState, useEffect, memo, useLayoutEffect, useReducer } from 'react';
+import {
+	setTrackList,
+	changeTrack,
+	setPlaying,
+	setRepeatTrack,
+} from 'store/slice/track';
 
 const Controller = () => {
-	const { audioUrl, image, name, title, tracks } = useAppSelector(
-		(state) => state.trackSlice
-	);
-	const { albums } = useAppSelector((state) => state.albumSlice);
+	const { audioUrl, image, name, title, tracks, play, trackId, repeatTrack } =
+		useAppSelector((state) => state.trackSlice);
 	const dispatch = useAppDispatch();
 
-	const [playing, setPlaying] = useState<boolean>(false);
 	const [audio] = useState(new Audio(audioUrl));
-	const [progress, setProgress] = useState<number>(0);
-	const [currentTrackIndex, setCurrentTrackIndex] = useState<number>(0);
-	// const [repeat, setRepeat] = useState()
+
+	const [event, updateEvent] = useReducer(
+		(prev: any, next: any) => {
+			return { ...prev, ...next };
+		},
+		{ progress: 0, currentTrackIndex: 0, shuffle: false }
+	);
 
 	const audioProgress = () => {
 		const { currentTime, duration } = audio;
-		setProgress(Math.floor((currentTime / duration) * 100));
-		progress > 98 && setProgress(0);
+		updateEvent({ progress: Math.floor((currentTime / duration) * 100) });
+		event.progress > 98.9 && updateEvent({ progress: 0 });
 	};
 
 	const handlePlay = () => {
-		setPlaying((prev) => !prev);
+		dispatch(setPlaying(!play));
 	};
 
 	const handleChangeTrack = (index: number) => {
@@ -46,60 +51,91 @@ const Controller = () => {
 		const change = {
 			audioUrl: track.preview_url,
 			title: track.name,
+			trackId: track.id,
 		};
 		dispatch(changeTrack(change));
-		setPlaying(false);
+
+		setTimeout(() => {
+			dispatch(setPlaying(true));
+		}, 1);
 	};
 
 	const handleNext = () => {
 		if (!tracks) return;
-		if (currentTrackIndex >= tracks?.length - 1) {
-			setCurrentTrackIndex(0);
+		if (event.currentTrackIndex >= tracks?.length - 1) {
+			updateEvent({ currentTrackIndex: 0 });
 			handleChangeTrack(0);
+			!event.repeat && dispatch(setPlaying(false));
 		} else {
-			setCurrentTrackIndex((prev) => prev + 1);
-			handleChangeTrack(currentTrackIndex + 1);
+			updateEvent({ currentTrackIndex: event.currentTrackIndex + 1 });
+			handleChangeTrack(event.currentTrackIndex + 1);
 		}
 	};
 
 	const handlePrev = () => {
 		if (!tracks) return;
-		if (currentTrackIndex <= 0) {
-			setCurrentTrackIndex(tracks?.length - 1);
+		if (event.currentTrackIndex <= 0) {
+			updateEvent({ currentTrackIndex: tracks?.length - 1 });
 			handleChangeTrack(tracks?.length - 1);
 		} else {
-			setCurrentTrackIndex((prev) => prev - 1);
-			handleChangeTrack(currentTrackIndex - 1);
+			updateEvent({ currentTrackIndex: event.currentTrackIndex - 1 });
+			handleChangeTrack(event.currentTrackIndex - 1);
 		}
 	};
 
 	const handleShuffleTracks = () => {
-		const newtracks = tracks
+		const newTracks = tracks
 			?.map((value: any) => ({ value, sort: Math.random() }))
 			.sort((a: any, b: any) => a.sort - b.sort)
 			.map(({ value }: any) => value);
-		dispatch(setTrackList(newtracks));
+		dispatch(setTrackList(newTracks));
+
+		updateEvent({ shuffle: !event.shuffle });
+	};
+
+	const handleAutoNext = () => {
+		if (!repeatTrack) {
+			handleNext();
+			return;
+		}
+
+		handleChangeTrack(event.currentTrackIndex);
+
+		console.log(event.currentTrackIndex);
+
+		dispatch(setPlaying(false));
+	};
+
+	const setCurrentTrackIndex = () => {
+		const currentTrack = tracks?.findIndex((track) => {
+			return trackId === track.id;
+		});
+
+		updateEvent({ currentTrackIndex: currentTrack });
 	};
 
 	useEffect(() => {
 		audio.src = audioUrl;
 		audio.currentTime = 0;
-		setProgress(0);
-		setPlaying(true);
+		updateEvent({ progress: 0 });
+		dispatch(setPlaying(false));
+		setCurrentTrackIndex();
 	}, [audioUrl]);
 
 	useEffect(() => {
-		playing ? audio.play() : audio.pause();
-	}, [playing]);
-
-	useEffect(() => {
-		audio.addEventListener('ended', handleNext);
+		audio.addEventListener('ended', async () => handleAutoNext());
 		return () => {
-			audio.removeEventListener('ended', handleNext);
+			audio.removeEventListener('ended', () => async () => handleAutoNext());
 		};
 	});
+
+	useEffect(() => {
+		play ? audio.play() : audio.pause();
+	}, [play]);
+
+	// console.log(repeatTrack, 'general playing');
+
 	audio.addEventListener('timeupdate', audioProgress);
-	// console.log(playing);
 
 	return (
 		<div className="fixed z-50 bottom-0 py-8 px-6 md:px-10 md:py-5 bg-[rgba(29,33,35,0.3)] backdrop-blur-lg w-full border border-[rgba(255,255,255,0.1)]">
@@ -121,7 +157,9 @@ const Controller = () => {
 					<div className="flex flex-row gap-6 items-center justify-center text-base">
 						<FontAwesomeIcon
 							onClick={handleShuffleTracks}
-							className="w-[16px] h-[16px] cursor-pointer"
+							className={`w-[16px] h-[16px] cursor-pointer ${
+								event.shuffle && 'text-alt'
+							}`}
 							icon={faShuffle}
 						/>
 						<FontAwesomeIcon
@@ -135,7 +173,7 @@ const Controller = () => {
 						>
 							<FontAwesomeIcon
 								className="w-[16px] h-[16px]"
-								icon={playing ? faPause : faPlay}
+								icon={play ? faPause : faPlay}
 							/>
 						</div>
 						<FontAwesomeIcon
@@ -144,14 +182,17 @@ const Controller = () => {
 							icon={faForward}
 						/>
 						<FontAwesomeIcon
-							className="w-[16px] h-[16px] cursor-pointer"
+							className={`w-[16px] h-[16px] cursor-pointer ${
+								repeatTrack && 'text-alt'
+							}`}
 							icon={faRepeat}
+							onClick={() => dispatch(setRepeatTrack(!repeatTrack))}
 						/>
 					</div>
 					<div className="w-full mt-6 bg-[rgba(255,255,255,0.04)] overflow-hidden rounded-full">
 						<div
 							className={`h-1 bg-secondary`}
-							style={{ width: `${Number(progress)}%` }}
+							style={{ width: `${Number(event.progress)}%` }}
 						></div>
 					</div>
 				</div>

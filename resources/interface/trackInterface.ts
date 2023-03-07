@@ -4,6 +4,7 @@ export interface trackI{
     name: string;
     title: string;
     tracks?: [];
-    trackChanged?: Boolean;
-    // duration: number;
+    trackId?: string;
+    play?: boolean;
+    repeatTrack?: boolean;
 }

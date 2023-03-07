@@ -69,6 +69,7 @@ const HomePage = () => {
 			title: album.tracks.items[0].name,
 			image: album.images[2].url,
 			name: album.artists[0].name,
+			trackId: album.tracks.items[0].id,
 		} as trackI;
 
 		if (index === 0) {
@@ -95,7 +96,7 @@ const HomePage = () => {
 		return <div key={card} className="loader bg-darkAlt"></div>;
 	});
 
-	console.log(albums);
+	// console.log(albums);
 
 	return (
 		<div>

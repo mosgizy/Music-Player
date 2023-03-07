@@ -25,6 +25,7 @@ export const handleTrackUpload = (item: any,album:any) => {
 			image: album[0].images[2].url,
 			name: album[0].artists[0].name,
 			title: item.name,
+			trackId:item.id
     };
     
     return {...payload}

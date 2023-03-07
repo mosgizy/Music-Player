@@ -8,7 +8,9 @@ const initialState = {
     name: "",
     title: "",
     tracks: [],
-    trackChanged:false,
+    trackId: "",
+    play: false,
+    repeatTrack: false,
 } as trackI
 
 export const trackSlice = createSlice({
@@ -20,7 +22,7 @@ export const trackSlice = createSlice({
             state.image = action.payload.image
             state.name = action.payload.name
             state.title = action.payload.title
-            state.trackChanged = true
+            state.trackId = action.payload.trackId
         },
         setTrackList: (state, action) => {
             state.tracks = action.payload
@@ -28,11 +30,17 @@ export const trackSlice = createSlice({
         changeTrack: (state, action) => { 
             state.audioUrl = action.payload.audioUrl
             state.title = action.payload.title
-            state.trackChanged = true
+            state.trackId = action.payload.trackId
+        },
+        setPlaying: (state, action) => { 
+            state.play = action.payload
+        },
+        setRepeatTrack: (state, action) => { 
+            state.repeatTrack = action.payload
         }
     }
 })
 
-export const { setTrack,setTrackList,changeTrack } = trackSlice.actions
+export const { setTrack,setTrackList,changeTrack,setPlaying,setRepeatTrack } = trackSlice.actions
 
 export default trackSlice.reducer
