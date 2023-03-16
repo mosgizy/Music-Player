@@ -3,7 +3,7 @@ export interface trackI{
     image: string;
     name: string;
     title: string;
-    tracks?: [];
+    tracks?: any[];
     trackId?: string;
     play?: boolean;
     repeatTrack?: boolean;

@@ -6,14 +6,14 @@ import TopChartCard from './../components/TopChartCard';
 import SongCard from './../components/SongCard';
 import Controller from './../components/Controller';
 import Link from 'next/link';
-import { fetchAlbums } from 'store/slice/Album';
+import { setAlbum, fetchAlbums, setMyCollections } from 'store/slice/Album';
 import { useAppDispatch, useAppSelector } from 'store/hook';
 import { useEffect } from 'react';
-import { totalTrackTime, msToTime } from 'resources/helper/functions';
-import { setTrack, setTrackList } from 'store/slice/track';
+import { totalTrackTime, msToTime, shuffle } from 'resources/helper/functions';
+import { changeTrack, setTrack, setTrackList } from 'store/slice/track';
 import { trackI } from 'resources/interface/trackInterface';
 
-const HomePage = () => {
+const HomePage = ({ data }: any) => {
 	const cards = [
 		1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19,
 	];
@@ -59,14 +59,10 @@ const HomePage = () => {
 	const dispatch = useAppDispatch();
 	const { albums, loading } = useAppSelector((state) => state.albumSlice);
 
-	useEffect(() => {
-		dispatch(fetchAlbums());
-	}, []);
-
 	const albumCarousel = albums.map((album, index) => {
 		const track = {
 			audioUrl: album.tracks.items[0].preview_url,
-			title: album.tracks.items[0].name,
+			title: album.tracks.items[0].name.replace(',', ''),
 			image: album.images[2].url,
 			name: album.artists[0].name,
 			trackId: album.tracks.items[0].id,
@@ -80,7 +76,7 @@ const HomePage = () => {
 		return (
 			<TopChartCard
 				avatar={album.images[2].url}
-				title={album.name}
+				title={album.name.replace(',', '')}
 				time={`${msToTime(totalTrackTime(album.tracks.items))}`}
 				artist={album.artists[0].name}
 				key={album.id}
@@ -88,26 +84,67 @@ const HomePage = () => {
 		);
 	});
 
-	const songCards = cards.map((card) => {
-		return <SongCard key={card} />;
+	const imageUrls: string[] = albums.map((album) => {
+		return album.images[2].url;
 	});
+
+	const handleSetTracks = (item: any, album: any) => {
+		dispatch(
+			setTrack({
+				title: item.name,
+				audioUrl: item.preview_url,
+				trackId: item.id,
+				name: item.name,
+				image: album.images[2].url,
+			})
+		);
+
+		// console.log('hello');
+	};
+
+	const songCards = albums.map((album, index) => {
+		const items = album.tracks.items;
+
+		return items.map((item: any, index: number) => {
+			return (
+				<SongCard
+					image={album.images[2].url}
+					title={item.artists[0].name}
+					name={item.name}
+					// func={handleSetTracks(item, album)}
+					key={index}
+				/>
+			);
+		});
+	});
+
+	console.log(shuffle(songCards.flat()));
 
 	const loader = cards.slice(0, 3).map((card) => {
 		return <div key={card} className="loader bg-darkAlt"></div>;
 	});
 
-	// console.log(albums);
+	useEffect(() => {
+		dispatch(setAlbum(data.albums));
+		// dispatch(fetchAlbums());
+	}, []);
+
+	// useEffect(() => {
+	// 	// dispatch(setMyCollections(songCards.flat()));
+	// }, [songCards]);
 
 	return (
 		<div>
 			<div className="flex flex-col gap-10">
 				<div className="flex flex-col gap-8 md:flex-row md:gap-2">
-					<Herocard />
-					<div className="hidden md:flex-col md:gap-4 md:flex md:flex-[1_1_32%]">
+					<Herocard imageUrls={imageUrls} />
+					<div className="hidden md:flex-col md:gap-4 md:flex md:flex-[1_1_32%] md:h-[420px]">
 						<h1 className="text-2xl font-bold">
 							<Link href="/chart">Top Charts</Link>
 						</h1>
-						{loading || albums.length === 0 ? loader : albumCarousel}
+						<div className="flex flex-col gap-4 overflow-scroll h-full">
+							{loading || albums.length === 0 ? loader : albumCarousel}
+						</div>
 					</div>
 				</div>
 				<div className="md:hidden">
@@ -120,14 +157,12 @@ const HomePage = () => {
 				</div>
 				<Slide
 					responsive={responsiveNewRelease}
-					Component={songCards}
+					Component={shuffle(songCards.flat())}
 					title={'New releases'}
 					link="releases"
 				/>
 			</div>
-			<div className="md:hidden">
-				<Controller />
-			</div>
+			<div className="md:hidden">{data.albums && <Controller />}</div>
 		</div>
 	);
 };

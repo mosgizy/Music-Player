@@ -6,7 +6,7 @@ import avatar from '../../../resources/assets/avatar/avatar.svg';
 import heroAvatar from '../../../resources/assets/avatar/hero.svg';
 import Image from 'next/image';
 
-const Herocard = () => {
+const Herocard = ({ imageUrls }: { imageUrls: string[] }) => {
 	return (
 		<section className="px-5 md:flex-[1_1_65%]">
 			<div className="bg-card rounded-3xl py-8 px-10 flex flex-col gap-38 relative md:gap-20 md:items-between md:py-8 md:rounded-[40px] overflow-hidden">
@@ -31,31 +31,18 @@ const Herocard = () => {
 					</div>
 					<div className="flex gap-6 items-center justify-between md:justify-start">
 						<div className="flex -space-x-5 rounded-none overflow-hidden">
-							<Image
-								className="inline-block ring-2 md:w-[40px]"
-								src={avatar}
-								alt="avatar"
-							/>
-							<Image
-								className="inline-block ring-2 md:w-[40px]"
-								src={avatar}
-								alt="avatar"
-							/>
-							<Image
-								className="inline-block ring-2 md:w-[40px]"
-								src={avatar}
-								alt="avatar"
-							/>
-							<Image
-								className="inline-block ring-2 md:w-[40px]"
-								src={avatar}
-								alt="avatar"
-							/>
-							<Image
-								className="inline-block ring-2 md:w-[40px]"
-								src={avatar}
-								alt="avatar"
-							/>
+							{imageUrls.map((image: string, index: number) => {
+								return (
+									<Image
+										key={index}
+										className="inline-block ring-2 md:w-[40px] rounded-full"
+										src={image}
+										alt="avatar"
+										width={40}
+										height={40}
+									/>
+								);
+							})}
 						</div>
 						<div className="flex flex-row gap-4 items-center">
 							<Image

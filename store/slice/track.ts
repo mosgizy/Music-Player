@@ -3,7 +3,7 @@ import type { PayloadAction } from '@reduxjs/toolkit'
 import {trackI} from '../../resources/interface/trackInterface'
 
 const initialState = {
-    audioUrl: "",
+    audioUrl: "https://p.scdn.co/mp3-preview/06a9555fbc63956ab761e262afac81929b8f0231?cid=d8a5ed958d274c2e8ee717e6a4b0971d",
     image: "",
     name: "",
     title: "",

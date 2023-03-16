@@ -4,7 +4,9 @@ import getData from 'utils/Api';
 
 interface AlbumI {
     loading: boolean;
-    albums: []
+    albums: any[];
+    album: any[];
+    myCollections: any[];
 }
 
 export const fetchAlbums = createAsyncThunk("fetchAlbums", async () => {
@@ -20,7 +22,9 @@ export const fetchAlbums = createAsyncThunk("fetchAlbums", async () => {
 
 const initialState = {
     loading: true,
-    albums:[]
+    albums: [],
+    album: [],
+    myCollections:[],
 } as AlbumI
 
 export const albumSlice = createSlice({
@@ -29,7 +33,14 @@ export const albumSlice = createSlice({
   reducers: {
       setLoader: (state, action:PayloadAction<boolean>) => {
           state.loading = action.payload ? action.payload : true;
-     }
+      },
+      setAlbum: (state, action) => {
+          state.albums = action.payload
+          state.loading = false
+      },
+      setMyCollections: (state, action) => {
+          state.myCollections = action.payload
+      }
     },
     extraReducers: (builder) => {
         builder.addCase(fetchAlbums.pending, (state) => {
@@ -42,10 +53,10 @@ export const albumSlice = createSlice({
         .addCase(fetchAlbums.rejected, (state) => {
             state.loading = true
         })
-  }
+    }
 })
 
 // Action creators are generated for each case reducer function
-export const {  } = albumSlice.actions
+export const { setLoader,setAlbum,setMyCollections } = albumSlice.actions
 
 export default albumSlice.reducer

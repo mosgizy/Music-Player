@@ -21,8 +21,8 @@ const Page = ({ params }: { params: { slug: string } }) => {
 	const dispatch = useAppDispatch();
 
 	const path = params.slug.replaceAll('%20', ' ');
-	const album = albums.filter((album) => album.name === path);
-	const time = msToTime(totalTrackTime(album[0].tracks.items));
+	const [album] = albums.filter((album) => album.name === path);
+	const time = msToTime(totalTrackTime(album.tracks.items));
 
 	const sumTime = () => {
 		let hrs = time.slice(0, 2);
@@ -37,7 +37,6 @@ const Page = ({ params }: { params: { slug: string } }) => {
 		}, 10);
 	};
 
-	// console.log(album[0].artists[0].name);
 	return (
 		<section className="min-h-screen pt-20 pb-8 px-5">
 			<div className="flex flex-col gap-6">
@@ -45,14 +44,14 @@ const Page = ({ params }: { params: { slug: string } }) => {
 					<div className="flex justify-center">
 						<Image
 							className="rounded-3xl w-full"
-							src={album[0].images[1].url}
+							src={album?.images[1].url}
 							alt="cover"
 							height={640}
 							width={640}
 						/>
 					</div>
 					<div className="flex flex-col gap-3">
-						<h1 className="text-3xl">{album[0].artists[0].name}</h1>
+						<h1 className="text-3xl">{album?.artists[0].name}</h1>
 						<div className="text-sm text-light flex flex-col gap-3 md:max-w-[75ch]">
 							<p>
 								Lorem ipsum dolor sit amet, consectetur adipisicing elit. Nemo
@@ -62,7 +61,7 @@ const Page = ({ params }: { params: { slug: string } }) => {
 								esse aliquam.
 							</p>
 							<p>
-								{album[0].total_tracks} songs - {sumTime()}{' '}
+								{album?.total_tracks} songs - {sumTime()}{' '}
 							</p>
 						</div>
 						<div className="flex flex-row gap-2 mt-6 justify-between md:justify-start">
@@ -80,67 +79,68 @@ const Page = ({ params }: { params: { slug: string } }) => {
 					</div>
 				</div>
 				<div className="flex flex-col gap-4">
-					{album[0].tracks.items.map((item: any) => {
-						return (
-							<div
-								key={item.id}
-								onClick={() => handleTrackClick(item)}
-								className={`flex flex-row justify-between md: px-4 py-3 backdrop-blur-sm bg-[rgba(51,55,59,0.37)] hover:bg-dark rounded-xl cursor-pointer hover:shadow-lg hover:shadow-darkAlt ${
-									trackId === item.id && 'bg-dark shadow-lg shadow-darkAlt'
-								}`}
-							>
-								<div className="flex flex-row gap-3 md:hidden">
-									<div className="">
-										<Image
-											className="h-[39px] w-[39px] rounded"
-											src={album[0].images[2].url}
-											height={64}
-											width={64}
-											alt="avatar"
-										/>
+					{album.tracks &&
+						album.tracks?.items.map((item: any) => {
+							return (
+								<div
+									key={item.id}
+									onClick={() => handleTrackClick(item)}
+									className={`flex flex-row justify-between md: px-4 py-3 backdrop-blur-sm bg-[rgba(51,55,59,0.37)] hover:bg-dark rounded-xl cursor-pointer hover:shadow-lg hover:shadow-darkAlt ${
+										trackId === item.id && 'bg-dark shadow-lg shadow-darkAlt'
+									}`}
+								>
+									<div className="flex flex-row gap-3 md:hidden">
+										<div className="">
+											<Image
+												className="h-[39px] w-[39px] rounded"
+												src={album?.images[2].url}
+												height={64}
+												width={64}
+												alt="avatar"
+											/>
+										</div>
+										<div className="flex flex-col gap-1 md:hidden">
+											<p className="text-xs">{item.name}</p>
+											<p className="text-xs">{item.type}</p>
+										</div>
 									</div>
-									<div className="flex flex-col gap-1 md:hidden">
+									<div className="flex flex-col items-end gap-1 md:hidden">
+										<div>
+											<FontAwesomeIcon
+												className="text-sm text-secondary"
+												icon={faEllipsisVertical}
+											/>
+										</div>
+										<div className="text-xs">
+											{msToTime(item.duration_ms).slice(4)}
+										</div>
+									</div>
+									<div className="hidden md:flex md:flex-row md:items-center md:justify-between md:w-full md:mr-5">
+										<div className="flex gap-6">
+											<Image
+												className="h-[39px] w-[39px] rounded"
+												src={album?.images[2].url}
+												height={64}
+												width={64}
+												alt="avatar"
+											/>
+											<Image src={heartLight} alt="heartLight" />
+										</div>
 										<p className="text-xs">{item.name}</p>
 										<p className="text-xs">{item.type}</p>
+										<div className="text-xs">
+											{msToTime(item.duration_ms).slice(4)}
+										</div>
+										<div>
+											<FontAwesomeIcon
+												className="text-sm text-secondary"
+												icon={faEllipsisVertical}
+											/>
+										</div>
 									</div>
 								</div>
-								<div className="flex flex-col items-end gap-1 md:hidden">
-									<div>
-										<FontAwesomeIcon
-											className="text-sm text-secondary"
-											icon={faEllipsisVertical}
-										/>
-									</div>
-									<div className="text-xs">
-										{msToTime(item.duration_ms).slice(4)}
-									</div>
-								</div>
-								<div className="hidden md:flex md:flex-row md:items-center md:justify-between md:w-full md:mr-5">
-									<div className="flex gap-6">
-										<Image
-											className="h-[39px] w-[39px] rounded"
-											src={album[0].images[2].url}
-											height={64}
-											width={64}
-											alt="avatar"
-										/>
-										<Image src={heartLight} alt="heartLight" />
-									</div>
-									<p className="text-xs">{item.name}</p>
-									<p className="text-xs">{item.type}</p>
-									<div className="text-xs">
-										{msToTime(item.duration_ms).slice(4)}
-									</div>
-									<div>
-										<FontAwesomeIcon
-											className="text-sm text-secondary"
-											icon={faEllipsisVertical}
-										/>
-									</div>
-								</div>
-							</div>
-						);
-					})}
+							);
+						})}
 				</div>
 			</div>
 		</section>
